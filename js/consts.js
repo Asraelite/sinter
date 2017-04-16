@@ -1,0 +1,9 @@
+SINTER.consts = {
+	TILE_SIZE: 16,
+	CHUNK_SIZE: 16,
+	WORLD_BUFFER_SIZE: 8,
+	physics: {
+		AIR_RESISTANCE_X: 0.95,
+		AIR_RESISTANCE_Y: 0.99
+	}
+};
