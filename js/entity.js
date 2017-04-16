@@ -14,7 +14,7 @@ SINTER.Entity = class Entity {
 	}
 
 	inputAction(action) {
-		this.body.move(action);
+		this.body.action(action);
 	}
 
 	get pos() {

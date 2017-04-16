@@ -4,6 +4,7 @@ SINTER.consts = {
 	WORLD_BUFFER_SIZE: 8,
 	physics: {
 		AIR_RESISTANCE_X: 0.95,
-		AIR_RESISTANCE_Y: 0.99
+		AIR_RESISTANCE_Y: 0.99,
+		GRAVITY: 0.5
 	}
 };

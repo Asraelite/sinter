@@ -30,6 +30,17 @@ SINTER.Graphics = class Graphics {
 		let ty = -focus.y + this.canvas.height / 2;
 		this.context.translate(tx, ty);
 
+		this.renderTerrain();
+
+		for (let e of world.entities) this.renderEntity(e);
+
+		this.context.restore();
+	}
+
+	renderTerrain() {
+		let world = this.game.world;
+		let focus = this.focus.center;
+
 		let topLeftPos = {
 			x: focus.x - this.canvas.width / 2,
 			y: focus.y - this.canvas.height / 2
@@ -38,6 +49,7 @@ SINTER.Graphics = class Graphics {
 			x: focus.x + this.canvas.width / 2,
 			y: focus.y + this.canvas.height / 2
 		};
+
 		let topLeftChunk = world.getTilePos(topLeftPos).chunk;
 		let bottomRightChunk = world.getTilePos(bottomRightPos).chunk;
 
@@ -52,10 +64,6 @@ SINTER.Graphics = class Graphics {
 				this.context.drawImage(img, wpos.x, wpos.y);
 			}
 		}
-
-		for (let e of world.entities) { this.renderEntity(e); }
-
-		this.context.restore();
 	}
 
 	renderChunk(chunk, pos) {
@@ -74,7 +82,6 @@ SINTER.Graphics = class Graphics {
 				context.fillRect(x, y, tileSize, tileSize);
 				context.fillStyle = '#000';
 				context.font = '8px Arial';
-				//context.fillText((x/16) + ':' + (y/16), x, y);
 			}
 		}
 
