@@ -28,13 +28,13 @@ SINTER.PhysicsBody = class PhysicsBody {
 
 	action(action) {
 		if (action == 'right') {
-			this.vel.x += 0.3;
+			this.vel.x += 0.35;
 		}
 		if (action == 'left') {
-			this.vel.x -= 0.3;
+			this.vel.x -= 0.35;
 		}
 		if (action == 'jump' && this.state.grounded) {
-			this.vel.y = -7;
+			this.vel.y = -6;
 		}
 	}
 
@@ -51,120 +51,85 @@ SINTER.PhysicsBody = class PhysicsBody {
 		}
 	}
 
-	move(q) {
+	move(q, z) {
 		let tileSize = SINTER.consts.TILE_SIZE;
 
-		let cof = (val, ceil) => {
-			if (ceil) return (Math.ceil(val / tileSize) - 1) * tileSize;
+		let cof = (val, ceil, add) => {
+			if (ceil) return (Math.ceil(val / tileSize) - add) * tileSize;
 			return Math.floor(val / tileSize) * tileSize;
 		}
 
 		this.state.grounded = false;
 
-		this.vertices.forEach(r => r.forEach((v, i) => v.forEach((c, j) => {
-			let vertex = c;
-			let iter = 1;
-
-			if (i == 0) iter = Math.ceil(Math.abs(this.vel.x) / tileSize);
-			if (i == 2) iter = Math.ceil(Math.abs(this.vel.y) / tileSize);
+		this.vertices.forEach(r => {
+			let iterX = Math.ceil(Math.abs(this.vel.x) / (tileSize / 2));
+			let iterY = Math.ceil(Math.abs(this.vel.y) / (tileSize / 2));
+			let iter = Math.max(iterX, iterY, 1);
 
 			for (let k = 0; k < iter; k++) {
-				let x = this.pos.x + vertex[0];
-				let y = this.pos.y + vertex[1];
+				r.forEach((v, i) => v.forEach((c, j) => {
+					let vertex = c;
 
-				if (i == 0) this.pos.x += this.vel.x / iter;
-				if (i == 2) this.pos.y += this.vel.y / iter;
+					if (i == 0) this.pos.x += (this.vel.x / iter);
+					if (i == 2) this.pos.y += (this.vel.y / iter);
 
-				let tx = cof(x, (j > 0 || i < 2) && i != 0);
-				let ty = cof(y, (j > 0 || i > 1) && i != 2);
+					let x = this.pos.x + vertex[0];
+					let y = this.pos.y + vertex[1];
 
-				let tile = this.world.getTile({ x: tx, y : ty });
+					let tx = cof(x, (j > 0 || i < 2) && i != 0, 1);
+					let ty = cof(y, (j > 0 || i > 1) && i != 2, 1);
 
-				if (tile == 0) return;
-				if (q) console.log(i, tx, ty);
+					let tile = this.world.getTile({ x: tx, y : ty });
+					let debugInfo;
 
-				if (i < 2) {
-					this.vel.x = 0;
-					this.pos.x = cof(x, i == 0);
-					this.pos.x = this.pos.x - vertex[0] + (i == 0 ? tileSize : 0);
-				}
-				if (i > 1) {
-					this.vel.y = 0;
-					this.state.grounded = true;
-					this.pos.y = cof(y, i == 2) - vertex[1] + (i == 2 ? tileSize : 0);
-				}
+					if (tile == 0) return;
+					if (q) debugInfo = this.pos.x + ', ' + this.pos.y;
 
-				if (q) console.info(this.pos.x, this.pos.y, vertex);
+					if (i < 2) {
+						this.vel.x = 0;
+						this.pos.x = cof(x, i == 0, 0);
+						this.pos.x = this.pos.x - vertex[0];
+					}
+					if (i > 1) {
+						this.vel.y = 0;
+						if (i == 3) this.state.grounded = true;
+						this.pos.y = cof(y, i == 2, 0);
+						this.pos.y = this.pos.y - vertex[1];
+					}
+
+					if (q) {
+						console.groupCollapsed(`Collision ${i} ` + debugInfo);
+						let c = "font-weight: bold; color: #888;"
+						console.log(`%ci%c: ${i}`, c, '');
+						console.log(`%ck%c: ${k}`, c, '');
+						console.log(`%ct%c: ${tx + ', ' + ty}`, c, '');
+						console.log(`%cstart%c: ${debugInfo}`, c, '');
+						console.log(`%cend%c: ${this.pos.x + ', ' + this.pos.y}`, c, '');
+						console.groupEnd();
+						debugger;
+					}
+				}));
 			}
-		})));
-
-		if (this.pos.y > 64) {
-			this.pos.y = 64;
-			this.vel.y = 0;
-		}
-
-		/*
-		for (let i = 0; i < xiter; i++) {
-			this.pos.x += this.vel.x / xiter;
-			let col = this.getCollisions(0);
-			if (col !== false) {
-				this.vel.x = 0;
-				this.pos.x = col;
-			}
-		}
-
-		this.state.grounded = false;
-
-		for (let i = 0; i < yiter; i++) {
-			this.pos.y += this.vel.y / yiter;
-			let col = this.getCollisions(1);
-			if (col !== false) {
-				this.pos.y = col;
-				this.vel.y = 0;
-				this.state.grounded = true;
-			}
-		}
-		*/
+		});
 	}
-
-	/*
-	getCollisions(axis) {
-		let tileSize = SINTER.consts.TILE_SIZE;
-		for (let vertex of this.vertices[axis]) {
-			let pos = {
-				x: this.pos.x + vertex[0],
-				y: this.pos.y + vertex[1]
-			}
-
-			pos.x = (Math.floor(pos.x / tileSize)) * tileSize;
-			if (vertex[2][0] == -1)
-				pos.x = (Math.ceil(pos.x / tileSize) - 1) * tileSize;
-			pos.y = (Math.floor(pos.y / tileSize)) * tileSize;
-			if (vertex[2][1] == -1)
-				pos.y = (Math.ceil(pos.y / tileSize) - 1) * tileSize;
-
-			if (this.world.getTile(pos) == 0) continue;
-
-			pos = (axis ? this.pos.y : this.pos.x);
-			let target = Math.floor((pos + vertex[axis]) / tileSize);
-			if (vertex[2][axis] == 1)
-				target = Math.ceil((pos + vertex[axis]) / tileSize);
-			target = target * tileSize - vertex[axis];
-			return target;
-		}
-		return false;
-	}
-	*/
 
 	test() {
 		console.group('Collision test');
-		[[79, 64, 0], [177, 64, 0], [100, 65, 1]].forEach(a => {
+		/*
+		[[40, -80, 0, -5], [40, -90], [-1, 0], [16, -81], [16, 1]].forEach(a => {
 			console.groupCollapsed(`Position ${a[0]}, ${a[1]}`);
+			if (a[2] != undefined) this.vel = { x: a[2], y: a[3] };
 			this.pos = { x: a[0], y: a[1] };
+			debugger;
 			this.move(true);
 			console.log(`%c${this.pos.x}, ${this.pos.y}`, 'font-weight: bold');
 			console.groupEnd();
 		});
+		*/
+		this.pos = { x: 500, y: 80 };
+		this.vel.y = 20;
+		this.move(true);
+		console.log(`%c${this.pos.x}, ${this.pos.y}`, 'font-weight: bold');
 		console.groupEnd('Collision test');
 	}
 

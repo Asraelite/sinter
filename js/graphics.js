@@ -57,7 +57,7 @@ SINTER.Graphics = class Graphics {
 			for (let y = topLeftChunk.y; y <= bottomRightChunk.y; y++) {
 				let pos = { x: x, y: y };
 				let chunk = world.getChunk(pos);
-				if (!this.chunkCache.has(chunk.posKey))
+				if (!this.chunkCache.has(chunk.posKey) || !chunk.imageCached)
 					this.renderChunk(chunk, pos);
 				let wpos = chunk.worldPos;
 				let img = this.chunkCache.get(chunk.posKey);
@@ -87,6 +87,7 @@ SINTER.Graphics = class Graphics {
 
 		let img = new Image();
 		img.src = this.tempCanvas.toDataURL();
+		chunk.imageCached = true;
 		this.chunkCache.set(chunk.posKey, img);
 	}
 
@@ -94,7 +95,7 @@ SINTER.Graphics = class Graphics {
 		let body = entity.body;
 		this.context.fillStyle = '#46b';
 		let pos = entity.pos;
-		this.context.fillRect(pos.x, pos.y, body.width, body.height);
+		this.context.fillRect(Math.round(pos.x), Math.round(pos.y), body.width, body.height);
 	}
 
 	resizeCanvas() {

@@ -53,17 +53,19 @@ SINTER.World = class World {
 	}
 
 	generateChunk(pos, params) {
-		let chunk = new SINTER.WorldChunk(pos, this.game.consts.CHUNK_SIZE);
+		let chunkSize = this.game.consts.CHUNK_SIZE;
+		let chunk = new SINTER.WorldChunk(pos, chunkSize);
 
-		if (pos.y >= 1) {
-			chunk.tiles = chunk.tiles.map((a, x) => {
-				return a.map((_, y) => 1);
-			});
-		} else if (pos.y == 0) {
-			chunk.tiles = chunk.tiles.map((a, x) => {
-				return a.map((_, y) => y > Math.sin(x / 5) * 5 ? 1 : 0);
-			});
-		}
+		chunk.tiles = chunk.tiles.map((col, tx) => col.map((tile, ty) => {
+			let x = chunk.pos.x * chunkSize + tx;
+			let y = chunk.pos.y * chunkSize + ty;
+
+			if (y > (Math.sin(x / 20) * 6)) return 1;
+			if (y < -5 && y > (Math.abs(x) % 10) - 9) return 1;
+			if (x == 80 && y < 3) return 1;
+			if (x > 75 && x < 75 && y == 5) return 1;
+			return 0;
+		}));
 
 		this.chunks.set(chunk.posKey, chunk);
 	}
@@ -102,6 +104,7 @@ SINTER.WorldChunk = class Chunk {
 		this.size = size;
 		this.changed = true;
 		this.active = true;
+		this.imageCached = false;
 		this._empty = true;
 		this._tiles = Array(size).fill(Array(size).fill(0));
 	}
@@ -113,6 +116,7 @@ SINTER.WorldChunk = class Chunk {
 	updateAttributes() {
 		this._empty = this.tiles.every(a => a.every(t => t == 0));
 		this.changed = false;
+		this.imageCached = false;
 	}
 
 	get empty() {
