@@ -34,8 +34,10 @@ SINTER.Gameplay = class Gameplay {
 		let player = this.world.createEntity();
 		this.createController(player, 'player');
 		this.game.graphics.focus = player;
-		let ai = this.world.createEntity();
-		//this.createController(ai, 'ai');
+		for (let i = 0; i < 10; i++) {
+			let ai = this.world.createEntity();
+			this.createController(ai, 'ai');
+		}
 	}
 
 	createController(entity, type) {

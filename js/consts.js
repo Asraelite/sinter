@@ -8,7 +8,7 @@ SINTER.consts = {
 		GRAVITY: 0.6
 	},
 	entities: {
-		JUMP_POWER: 10,
+		JUMP_POWER: 11,
 		SPEED: 0.5
 	}
 };

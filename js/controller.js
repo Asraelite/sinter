@@ -9,7 +9,7 @@ SINTER.EntityController = class EntityController {
 			this.tick = this.keyboardInput;
 		} else if (type == 'ai') {
 			this.ai = new SINTER.Ai(this.entity);
-			this.tick = this.ai.tick;
+			this.tick = this.ai.tick.bind(this.ai);
 		} else {
 			this.tick = _ => {};
 		}
