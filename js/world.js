@@ -56,14 +56,28 @@ SINTER.World = class World {
 		let chunkSize = this.game.consts.CHUNK_SIZE;
 		let chunk = new SINTER.WorldChunk(pos, chunkSize);
 
+		let plats = [];
+
+		for (let i = 0; i < Math.random() * 100; i++) {
+			let plat = [];
+			plat.push(Math.random() * chunkSize);
+			plat.push(Math.random() * chunkSize);
+			plat.push(Math.random() * chunkSize / 2);
+			plat.push(Math.random() * chunkSize / 6);
+			plat[0] -= plat[2] / 2;
+			plat[1] -= plat[3] / 2;
+			plat[2] += plat[0];
+			plat[3] += plat[1];
+			plats.push(plat);
+		}
+
 		chunk.tiles = chunk.tiles.map((col, tx) => col.map((tile, ty) => {
 			let x = chunk.pos.x * chunkSize + tx;
 			let y = chunk.pos.y * chunkSize + ty;
 
-			if (y > (Math.sin(x / 20) * 6)) return 1;
-			if (y < -5 && y > (Math.abs(x) % 10) - 9) return 1;
-			if (x == 80 && y < 3) return 1;
-			if (x > 75 && x < 75 && y == 5) return 1;
+			if (plats.some(p => {
+				return tx > p[0] && tx < p[2] && ty > p[1] && ty < p[3];
+			})) return 1;
 			return 0;
 		}));
 

@@ -23,6 +23,8 @@ SINTER.Graphics = class Graphics {
 		let state = this.game.state;
 
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.context.fillStyle = '#f8f8f8';
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.save();
 
 		let focus = this.focus.center;
@@ -75,13 +77,44 @@ SINTER.Graphics = class Graphics {
 		this.tempCanvas.height = size;
 		context.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
 
-		for (let x = 0; x < size; x += tileSize) {
-			for (let y = 0; y < size; y += tileSize) {
-				let tile = chunk.getTile({ x: x / tileSize, y: y / tileSize });
-				context.fillStyle = tile == 0 ? '#f8f8f8' : '#aaa';
-				context.fillRect(x, y, tileSize, tileSize);
-				context.fillStyle = '#000';
-				context.font = '8px Arial';
+		let tileMap = [];
+		let wpos = chunk.worldPos;
+
+		for (let x = 0; x < chunkSize + 2; x++) {
+			tileMap[x] = [];
+			for (let y = 0; y < chunkSize + 2; y++) {
+				tileMap[x].push(this.game.world.getTile({
+					x: wpos.x + (x - 1) * tileSize,
+					y: wpos.y + (y - 1) * tileSize
+				}));
+			}
+		}
+
+		context.fillStyle = '#eee';
+		for (let x = 0; x < chunkSize + 2; x++) {
+			for (let y = 0; y < chunkSize + 2; y++) {
+				let tile = tileMap[x][y];
+				if (!tile) continue;
+				let rx = (x - 1) * tileSize;
+				let ry = (y - 1) * tileSize;
+				context.fillRect(rx + 5, ry + 5, tileSize, tileSize);
+			}
+		}
+
+		for (let x = 1; x <= chunkSize; x++) {
+			for (let y = 1; y <= chunkSize; y++) {
+				let neighbours = [[-1, 0], [1, 0], [0, 1], [0, -1],
+					[-1, -1], [1, 1], [-1, 1], [1, -1]].map(t => {
+					return tileMap[x + t[0]] ? tileMap[x + t[0]][y + t[1]] : 0;
+				});
+				let tile = tileMap[x][y];
+				if (!tile) continue;
+				context.fillStyle = '#aaa';
+				if (neighbours.some(t => !t) && tile)
+					context.fillStyle = '#888';
+				let rx = (x - 1) * tileSize;
+				let ry = (y - 1) * tileSize;
+				context.fillRect(rx, ry, tileSize, tileSize);
 			}
 		}
 
