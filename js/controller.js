@@ -4,7 +4,15 @@ SINTER.EntityController = class EntityController {
 		this.world = game.world;
 		this.input = game.input;
 		this.entity = entity;
-		this.tick = type == 'player' ? this.keyboardInput : _ => {};
+
+		if (type == 'player') {
+			this.tick = this.keyboardInput;
+		} else if (type == 'ai') {
+			this.ai = new SINTER.Ai(this.entity);
+			this.tick = this.ai.tick;
+		} else {
+			this.tick = _ => {};
+		}
 	}
 
 	keyboardInput() {

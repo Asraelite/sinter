@@ -27,6 +27,16 @@ SINTER.Graphics = class Graphics {
 		let v = Math.max(5, Math.min(this.focus.pos.y / 100, 240)) | 0;
 		this.context.fillStyle = `rgb(${260 - v}, ${255 - v}, ${255 - v})`;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+		this.context.save();
+
+		if (focus.y > 5000) {
+			let shake = (focus.y - 5000) / 10000;
+			let shakeX = (Math.random() - 0.5) * shake;
+			let shakeY = (Math.random() - 0.5) * shake;
+			this.context.translate(shakeX, shakeY);
+		}
+
 		this.context.save();
 
 		let tx = -focus.x + this.canvas.width / 2;
@@ -37,6 +47,16 @@ SINTER.Graphics = class Graphics {
 
 		for (let e of world.entities) this.renderEntity(e);
 		for (let e of world.particles) this.renderParticle(e);
+
+		this.context.restore();
+
+		let str = 'Score: ' + this.game.gameplay.score;
+		this.context.font = '12pt Arial';
+		this.context.textBaseline = 'top';
+		this.context.fillStyle = 'rgba(0, 0, 0, 0.1)';
+		this.context.fillText(str, 12, 12);
+		this.context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+		this.context.fillText(str, 10, 10);
 
 		this.context.restore();
 	}

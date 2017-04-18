@@ -1,8 +1,10 @@
 SINTER.Entity = class Entity {
 	constructor(world, type, body) {
 		this.world = world;
-		this.body = new SINTER.PhysicsBody(world, body);
 		this.controller = false;
+		this.jumpPower = SINTER.consts.entities.JUMP_POWER;
+		this.speed = SINTER.consts.entities.SPEED;
+		this.body = new SINTER.PhysicsBody(this, world, body);
 	}
 
 	tick() {

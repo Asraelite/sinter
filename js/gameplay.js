@@ -2,6 +2,7 @@ SINTER.Gameplay = class Gameplay {
 	constructor(game) {
 		this.game = game;
 		this.world = game.world;
+		this.score = 0;
 
 		this.controllers = new Set();
 	}
@@ -12,6 +13,7 @@ SINTER.Gameplay = class Gameplay {
 		for (let c of Array.from(this.controllers)) c.tick();
 
 		let count = focus.pos.y / 30000;
+		count = Math.min(count, 20);
 
 		for (let i = 0; i < count; i++) {
 			let pos = {
@@ -22,6 +24,8 @@ SINTER.Gameplay = class Gameplay {
 
 			this.world.createParticle({ pos: pos, size: size });
 		}
+
+		this.score = Math.max(this.score, ((-focus.pos.y / 48) | 0));
 	}
 
 	startAdventure() {
@@ -30,6 +34,8 @@ SINTER.Gameplay = class Gameplay {
 		let player = this.world.createEntity();
 		this.createController(player, 'player');
 		this.game.graphics.focus = player;
+		let ai = this.world.createEntity();
+		//this.createController(ai, 'ai');
 	}
 
 	createController(entity, type) {

@@ -2,6 +2,10 @@ SINTER.Physics = class Physics {
 	constructor(world) {
 		this.world = world;
 		this.gravity = SINTER.consts.physics.GRAVITY;
+		this.airResistance = {
+			x: SINTER.consts.physics.AIR_RESISTANCE_X,
+			y: SINTER.consts.physics.AIR_RESISTANCE_Y
+		};
 	}
 
 	tick() {
@@ -10,8 +14,10 @@ SINTER.Physics = class Physics {
 }
 
 SINTER.PhysicsBody = class PhysicsBody {
-	constructor(world, body) {
+	constructor(entity, world, body) {
 		this.world = world;
+		this.speed = entity.speed;
+		this.jumpPower = entity.jumpPower;
 
 		this.state = {
 			grounded: false
@@ -19,8 +25,10 @@ SINTER.PhysicsBody = class PhysicsBody {
 
 		this.pos = { x: 0, y: 0 };
 		this.vel = { x: 0, y: 0 };
+		this.acc = { x: 0, y: 0 };
 
 		let size = body.size || SINTER.consts.TILE_SIZE;
+		this.smallestSide = SINTER.consts.TILE_SIZE;
 		this.createVertices([[0, 0, size, size]]);
 		this.width = size;
 		this.height = size;
@@ -28,26 +36,28 @@ SINTER.PhysicsBody = class PhysicsBody {
 
 	action(action) {
 		if (action == 'right') {
-			this.vel.x += 0.35;
+			this.vel.x += this.speed;
 		}
 		if (action == 'left') {
-			this.vel.x -= 0.35;
+			this.vel.x -= this.speed;
 		}
 		if (action == 'jump' && this.state.grounded) {
-			this.vel.y = -6;
+			this.vel.y = -this.jumpPower;
 		}
 	}
 
 	tick() {
 		this.move();
 
-		this.vel.x *= SINTER.consts.physics.AIR_RESISTANCE_X;
-		this.vel.y *= SINTER.consts.physics.AIR_RESISTANCE_Y;
+		this.vel.x *= this.world.physics.airResistance.x;
+		this.vel.y *= this.world.physics.airResistance.y;
 
 		let tile = this.world.getTile({ x: this.pos.x, y: this.pos.y });
 
 		if (!this.state.grounded) {
 			this.vel.y += this.world.physics.gravity;
+		} else {
+
 		}
 	}
 
@@ -62,8 +72,9 @@ SINTER.PhysicsBody = class PhysicsBody {
 		this.state.grounded = false;
 
 		this.vertices.forEach(r => {
-			let iterX = Math.ceil(Math.abs(this.vel.x) / (tileSize / 2));
-			let iterY = Math.ceil(Math.abs(this.vel.y) / (tileSize / 2));
+			let interval = Math.min(this.smallestSide, tileSize);
+			let iterX = Math.ceil(Math.abs(this.vel.x) / (interval / 2));
+			let iterY = Math.ceil(Math.abs(this.vel.y) / (interval / 2));
 			let iter = Math.max(iterX, iterY, 1);
 
 			for (let k = 0; k < iter; k++) {
@@ -155,6 +166,8 @@ SINTER.PhysicsBody = class PhysicsBody {
 			for (let i = 0; i <= yi; i++) vertices[1].push([lx, y + yinc * i]);
 			for (let i = 0; i <= xi; i++) vertices[2].push([x + xinc * i, y]);
 			for (let i = 0; i <= xi; i++) vertices[3].push([x + xinc * i, ly]);
+
+			this.smallestSide = Math.min(this.smallestSide, rect[2], rect[3]);
 
 			this.vertices.push(vertices);
 		}

@@ -98,7 +98,7 @@ SINTER.World = class World {
 
 	createEntity(params) {
 		let type = 'cube';
-		let body = {};
+		let body = { size: 16 };
 		let entity = new SINTER.Entity(this, type, body);
 		this._entities.add(entity);
 		return entity;
