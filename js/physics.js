@@ -81,8 +81,8 @@ SINTER.PhysicsBody = class PhysicsBody {
 				r.forEach((v, i) => v.forEach((c, j) => {
 					let vertex = c;
 
-					if (i == 0) this.pos.x += (this.vel.x / iter);
-					if (i == 2) this.pos.y += (this.vel.y / iter);
+					if (i == 0 && j == 0) this.pos.x += (this.vel.x / iter);
+					if (i == 2 && j == 0) this.pos.y += (this.vel.y / iter);
 
 					let x = this.pos.x + vertex[0];
 					let y = this.pos.y + vertex[1];

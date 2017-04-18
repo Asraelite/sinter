@@ -5,10 +5,10 @@ SINTER.consts = {
 	physics: {
 		AIR_RESISTANCE_X: 0.9,
 		AIR_RESISTANCE_Y: 0.98,
-		GRAVITY: 0.4
+		GRAVITY: 0.6
 	},
 	entities: {
-		JUMP_POWER: 6,
-		SPEED: 0.35
+		JUMP_POWER: 10,
+		SPEED: 0.5
 	}
 };
