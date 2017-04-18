@@ -21,13 +21,14 @@ SINTER.Graphics = class Graphics {
 
 		let world = this.game.world;
 		let state = this.game.state;
+		let focus = this.focus.center;
 
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		this.context.fillStyle = '#f8f8f8';
+		let v = Math.max(5, Math.min(this.focus.pos.y / 100, 240)) | 0;
+		this.context.fillStyle = `rgb(${260 - v}, ${255 - v}, ${255 - v})`;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.save();
 
-		let focus = this.focus.center;
 		let tx = -focus.x + this.canvas.width / 2;
 		let ty = -focus.y + this.canvas.height / 2;
 		this.context.translate(tx, ty);
@@ -35,6 +36,7 @@ SINTER.Graphics = class Graphics {
 		this.renderTerrain();
 
 		for (let e of world.entities) this.renderEntity(e);
+		for (let e of world.particles) this.renderParticle(e);
 
 		this.context.restore();
 	}
@@ -90,7 +92,7 @@ SINTER.Graphics = class Graphics {
 			}
 		}
 
-		context.fillStyle = '#eee';
+		context.fillStyle = 'rgba(0, 0, 0, 0.05)';
 		for (let x = 0; x < chunkSize + 2; x++) {
 			for (let y = 0; y < chunkSize + 2; y++) {
 				let tile = tileMap[x][y];
@@ -129,6 +131,16 @@ SINTER.Graphics = class Graphics {
 		this.context.fillStyle = '#46b';
 		let pos = entity.pos;
 		this.context.fillRect(Math.round(pos.x), Math.round(pos.y), body.width, body.height);
+	}
+
+	renderParticle(particle) {
+		let pos = particle.pos;
+		let size = particle.size;
+		this.context.beginPath();
+		this.context.arc(pos.x, pos.y, size, 0, Math.PI * 2, true);
+		this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+		this.context.fill();
+		this.context.closePath();
 	}
 
 	resizeCanvas() {

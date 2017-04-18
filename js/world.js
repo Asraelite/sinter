@@ -6,10 +6,12 @@ SINTER.World = class World {
 
 		this.chunks = new Map();
 		this._entities = new Set();
+		this._particles = new Set();
 	}
 
 	tick() {
 		this.physics.tick();
+		this.particles.forEach(p => p.tick());
 	}
 
 	getTilePos(worldPos) {
@@ -102,12 +104,22 @@ SINTER.World = class World {
 		return entity;
 	}
 
+	createParticle(params) {
+		let particle = new SINTER.Particle(this, params.pos, params.size);
+		this._particles.add(particle);
+		return particle;
+	}
+
 	clearEntities() {
 		for (e of this.entities) e.destruct();
 	}
 
 	get entities() {
 		return Array.from(this._entities);
+	}
+
+	get particles() {
+		return Array.from(this._particles);
 	}
 }
 
