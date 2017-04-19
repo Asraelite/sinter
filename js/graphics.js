@@ -26,11 +26,17 @@ SINTER.Graphics = class Graphics {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		let v = Math.max(5, Math.min(this.focus.pos.y / 100, 240)) | 0;
 		this.context.fillStyle = `rgb(${260 - v}, ${255 - v}, ${255 - v})`;
+		if (focus.y > 100000) this.context.fillStyle = '#000';
+		if (focus.y > 200500) {
+			let r = Math.min(((focus.y - 200000) / 100) | 0, 255);
+			let gb = Math.max(r - 5, 0);
+			this.context.fillStyle = `rgb(${r}, ${gb}, ${gb})`;
+		}
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
 		this.context.save();
 
-		if (focus.y > 5000) {
+		if (focus.y > 5000 && focus.y < 100000) {
 			let shake = (focus.y - 5000) / 10000;
 			let shakeX = (Math.random() - 0.5) * shake;
 			let shakeY = (Math.random() - 0.5) * shake;
@@ -50,13 +56,15 @@ SINTER.Graphics = class Graphics {
 
 		this.context.restore();
 
-		let str = 'Score: ' + this.game.gameplay.score;
-		this.context.font = '12pt Arial';
-		this.context.textBaseline = 'top';
-		this.context.fillStyle = 'rgba(0, 0, 0, 0.1)';
-		this.context.fillText(str, 12, 12);
-		this.context.fillStyle = 'rgba(0, 0, 0, 0.8)';
-		this.context.fillText(str, 10, 10);
+		if (this.game.gameplay.showScore) {
+			let str = 'Score: ' + this.game.gameplay.score;
+			this.context.font = '12pt Arial';
+			this.context.textBaseline = 'top';
+			this.context.fillStyle = 'rgba(0, 0, 0, 0.1)';
+			this.context.fillText(str, 12, 12);
+			this.context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+			this.context.fillText(str, 10, 10);
+		}
 
 		this.context.restore();
 	}
@@ -134,6 +142,7 @@ SINTER.Graphics = class Graphics {
 				context.fillStyle = '#aaa';
 				if (neighbours.some(t => !t) && tile)
 					context.fillStyle = '#888';
+				if (tile == 2) context.fillStyle = '#fff';
 				let rx = (x - 1) * tileSize;
 				let ry = (y - 1) * tileSize;
 				context.fillRect(rx, ry, tileSize, tileSize);

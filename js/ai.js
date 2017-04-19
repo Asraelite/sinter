@@ -2,14 +2,14 @@ SINTER.Ai = class Ai {
 	constructor(entity, type) {
 		this.entity = entity;
 
-		this.createPaths();
+	//	this.createPaths();
 
 		this.state = {
-			dir: 'right'
+			path: false
 		};
 	}
 
-	createPaths() {
+	createPathProcesses() {
 		let physics = this.entity.world.physics;
 		let jp = this.entity.jumpPower;
 		let g = physics.gravity;
@@ -30,6 +30,10 @@ SINTER.Ai = class Ai {
 
 		let xvel = maxSpeed;
 		let yvel = this.entity.jumpPower;
+
+	}
+
+	createPath() {
 
 	}
 

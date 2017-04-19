@@ -7,11 +7,22 @@ SINTER.World = class World {
 		this.chunks = new Map();
 		this._entities = new Set();
 		this._particles = new Set();
+
+		//this.emptyChunk = this.generateChunk({ x: 0, y: 0 }, {
+		//	empty: true,
+		//	aux: true
+		//});
+
+		this.looped = false;
 	}
 
 	tick() {
 		this.physics.tick();
 		this.particles.forEach(p => p.tick());
+
+		if (this.game.graphics.focus.pos.y > -8500) {
+			this.looped = false;
+		}
 	}
 
 	getTilePos(worldPos) {
@@ -56,7 +67,7 @@ SINTER.World = class World {
 
 	generateChunk(pos, params) {
 		let chunkSize = this.game.consts.CHUNK_SIZE;
-		let chunk = new SINTER.WorldChunk(pos, chunkSize);
+		let chunk = new SINTER.WorldChunk(this, pos, chunkSize);
 
 		let plats = [];
 
@@ -76,6 +87,38 @@ SINTER.World = class World {
 		chunk.tiles = chunk.tiles.map((col, tx) => col.map((tile, ty) => {
 			let x = chunk.pos.x * chunkSize + tx;
 			let y = chunk.pos.y * chunkSize + ty;
+			let wy = y * this.game.consts.TILE_SIZE;
+
+			if (params.empty) return 0;
+
+			if (wy < -99000) {
+				return 0;
+			} else if (wy > 100000 && wy < 120000) {
+				let chance = 500 / (wy - 99000);
+				return Math.random() < chance ** 2 ? 1 : 0;
+			} else if (wy >= 120000 && wy < 122000) {
+				return 0;
+			} else if (wy >= 122000 && wy < 150000) {
+				let mod = (Math.abs(x)) % 300;
+				let size = Math.max((wy - 122000) / 1000, 2);
+				if (mod > 150 - size && mod < 150 + size) {
+					return 0;
+				} else if (mod > 148 - size && mod < 152 + size) {
+					return Math.random() < 0.3 ? 2 : 0;
+				} else {
+					return Math.random() < 0.01 ? 1 : 2;
+				}
+			} else if (wy >= 150000 && wy < 200000) {
+				this.game.gameplay.showScore = false;
+				if (Math.abs(x) < 2) return 0;
+				return (Math.abs(x) + y) % 6 == 0 ? 2 : 0;
+			} else if (wy >= 200000 && wy < 230000) {
+				return 0;
+			} else if (wy >= 230000) {
+				this.game.graphics.focus.pos.y = -100000;
+			}
+
+			//if (wy < -9000 && this.looped) return 0;
 
 			if (plats.some(p => {
 				return tx > p[0] && tx < p[2] && ty > p[1] && ty < p[3];
@@ -83,10 +126,13 @@ SINTER.World = class World {
 			return 0;
 		}));
 
+		//if (params.aux) return chunk;
 		this.chunks.set(chunk.posKey, chunk);
 	}
 
 	getChunk(pos) {
+		//let wp = SINTER.WorldChunk.getWorldPos(pos);
+		//if (pos.y < -9000 && this.looped) return this.emptyChunk;
 		let key = pos.x + '.' + pos.y;
 		if (!this.chunks.has(key)) this.generateChunk(pos, {});
 		return this.chunks.get(key);
@@ -124,7 +170,7 @@ SINTER.World = class World {
 }
 
 SINTER.WorldChunk = class Chunk {
-	constructor(pos, size) {
+	constructor(world, pos, size) {
 		this.pos = pos;
 		this.posKey = pos.x + '.' + pos.y;
 		this.size = size;
@@ -136,6 +182,7 @@ SINTER.WorldChunk = class Chunk {
 	}
 
 	getTile(pos) {
+		if (!this._tiles[pos.x]) console.log(pos);
 		return this._tiles[pos.x][pos.y];
 	}
 
